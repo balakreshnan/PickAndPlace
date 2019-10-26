@@ -1,8 +1,8 @@
 
 # An Intelligent, AI Process Control Solution for Automated Pick and Place Equipment in Electronic Assembly Manufacturing
 
-## Embracing Industry 4.0 Digital Transformation  
-## Published January 2019 
+### Embracing Industry 4.0 Digital Transformation  
+### Published January 2019 
 
 ## Authors:
 Greg Vance (Rockwell Automation)
