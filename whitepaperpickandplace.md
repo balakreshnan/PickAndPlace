@@ -13,7 +13,7 @@
 - Stephen Philip (Microsoft)
 
 ## Whitepaper (pdf)
-![alt text](https://github.com/balakreshnan/PickAndPlace/blob/master/Pick%20and%20Place%20-%20Microsoft%20Rockwell%20Whitepaper.pdf "Pick and Place")
+[Pick and Place](https://github.com/balakreshnan/PickAndPlace/blob/master/Pick%20and%20Place%20-%20Microsoft%20Rockwell%20Whitepaper.pdf)
 
 ## An Intelligent, AI Process Control Solution for Automated Pick and Place Equipment in Electronic Assembly
 
