@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
+from keras.utils.np_utils import to_categorical
 
 import pandas as pd
 
@@ -15,18 +16,8 @@ PATH_test = "gc10-classify-test.csv"
 df_train = pd.read_csv(PATH, skipinitialspace=True, names = COLUMNS, index_col=False, header=1)
 df_test = pd.read_csv(PATH_test, skipinitialspace=True, names = COLUMNS, index_col=False, header=1)
 
-df_train = df_train[["Noz Rejects Sum%", "Noz Rejects Sum", "Noz Reject Factor", "rejected"]]
-df_test = df_test[["Noz Rejects Sum%", "Noz Rejects Sum", "Noz Reject Factor", "rejected"]]
-
-#print(df_train.shape, df_test.shape)
-#print(df_train.dtypes)
-
-
-# Generate tain and test data
-#X, Y = make_classification(n_samples=50000, n_features=10, n_informative=8, 
-#                           n_redundant=0, n_clusters_per_class=2)
-#Y = np.array([Y, -(Y-1)]).T  # The model currently needs one column for each class
-#X, X_test, Y, Y_test = train_test_split(X, Y)
+df_train = df_train[["Noz Rejects Sum%", "Noz Rejects Sum", "Noz Reject Factor", "rejected","Ch-Hole", "optel_schedule_wo"]]
+df_test = df_test[["Noz Rejects Sum%", "Noz Rejects Sum", "Noz Reject Factor", "rejected","Ch-Hole", "optel_schedule_wo"]]
 
 features = ['Noz Rejects Sum%', 'Noz Rejects Sum', 'Noz Reject Factor', 'rejected']
 
@@ -43,16 +34,30 @@ df_test['rejected'] = df_test['rejected'].astype(float)
 #desc = pd.read_csv(PATH)[features].describe()
 #print(desc)
 
-#print (df_train.dtypes)
+print (df_train.dtypes)
 
-#preprocessing_layer = tf.keras.layers.DenseFeatures(df_train)
+#features = df_train[["Noz Rejects Sum%", "Noz Rejects Sum", "Noz Reject Factor"]]
+#chhole = to_categorical(df_train['Ch-Hole'])
+#optelno = to_categorical(df_train['optel_schedule_wo'], num_classes=None)
 
-#target = df_train.pop('target')
+#df_train.insert(3, "chhole", chhole, True)
+#df_train['chhole'] = chhole
+df_train['chhole'] = df_train['Ch-Hole'].astype('category').cat.codes
+df_train['optelno'] = df_train['optel_schedule_wo'].astype('category').cat.codes
 
+#df_train['chhole'] = to_categorical(df_train['Ch-Hole'])
+#df_train['optelno'] = to_categorical(df_train['optel_schedule_wo'], num_classes=None)
 
-features = df_train[["Noz Rejects Sum%", "Noz Rejects Sum", "Noz Reject Factor"]]
+df_test['chhole'] = df_test['Ch-Hole'].astype('category').cat.codes
+df_test['optelno'] = df_test['optel_schedule_wo'].astype('category').cat.codes
+
+#df_test['chhole'] = to_categorical(df_test['Ch-Hole'])
+#df_test['optelno'] = to_categorical(df_test['optel_schedule_wo'])
+
+features = df_train[['Noz Rejects Sum%', 'Noz Rejects Sum', 'Noz Reject Factor', 'chhole', 'optelno']]
+#features = df_train[['Noz Rejects Sum%', 'Noz Rejects Sum', 'Noz Reject Factor']]
 labels = df_train[["rejected"]]
-features_test = df_test[["Noz Rejects Sum%", "Noz Rejects Sum", "Noz Reject Factor"]]
+features_test = df_test[["Noz Rejects Sum%", "Noz Rejects Sum", "Noz Reject Factor", 'chhole', 'optelno']]
 labels_test = df_test[["rejected"]]
 
 dataset = tf.data.Dataset.from_tensor_slices((features.values, labels.values))
@@ -93,3 +98,4 @@ print('\n\nTest Loss {}, Test Accuracy {}'.format(test_loss, test_accuracy))
 #  print("Predicted survival: {:.2%}".format(prediction[0]),
 #        " | Actual outcome: ",
 #        ("Working" if bool(survived) else "Failed"))
+
