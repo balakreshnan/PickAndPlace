@@ -89,6 +89,8 @@ model.fit(train_data, epochs=5)
 
 test_loss, test_accuracy = model.evaluate(test_data)
 
+model.save('picknplace_model.h5')
+
 print('\n\nTest Loss {}, Test Accuracy {}'.format(test_loss, test_accuracy))
 
 #predictions = model.predict(test_data)
