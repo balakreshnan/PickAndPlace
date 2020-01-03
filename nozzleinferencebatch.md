@@ -108,3 +108,16 @@ model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accurac
 score = model.evaluate(test_data)
 print("%s: %.2f%%" % (model.metrics_names[1], score[1]*100))
 ```
+
+## Now time to predict the model with new set of data
+
+```
+result = model.predict(test_data)
+print(result)
+print(type(result))
+for i in result:
+	print(str((i[0])))
+	#print('\n')
+```
+
+Call model.predict and pass the test_data data set and display the result. For loop is used to look at each line and what was scored. From this point we can also create a rest end point using flask and do inferencing as well but the logic will be the same.
