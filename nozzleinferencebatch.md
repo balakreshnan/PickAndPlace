@@ -13,11 +13,16 @@ took the data set and added a column call rejected. for rejected column the form
 
 ```
 import tensorflow as tf
+import keras
+import h5py
 import numpy as np
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
+from keras.utils.np_utils import to_categorical
 
 import pandas as pd
+
+from keras import backend as K
 ```
 
 ## define columns and data path
@@ -48,11 +53,6 @@ This is needed since csv file are read as string data type in each column
 ```
 features = ['Noz Rejects Sum%', 'Noz Rejects Sum', 'Noz Reject Factor', 'rejected']
 
-df_train['Noz Rejects Sum%'] = df_train['Noz Rejects Sum%'].astype(float)
-df_train['Noz Rejects Sum'] = df_train['Noz Rejects Sum'].astype(float)
-df_train['Noz Reject Factor'] = df_train['Noz Reject Factor'].astype(float)
-df_train['rejected'] = df_train['rejected'].astype(float)
-
 df_test['Noz Rejects Sum%'] = df_test['Noz Rejects Sum%'].astype(float)
 df_test['Noz Rejects Sum'] = df_test['Noz Rejects Sum'].astype(float)
 df_test['Noz Reject Factor'] = df_test['Noz Reject Factor'].astype(float)
@@ -63,9 +63,6 @@ df_test['rejected'] = df_test['rejected'].astype(float)
 ## convert text column to categorical
 
 ```
-df_train['chhole'] = df_train['Ch-Hole'].astype('category').cat.codes
-df_train['optelno'] = df_train['optel_schedule_wo'].astype('category').cat.codes
-
 df_test['chhole'] = df_test['Ch-Hole'].astype('category').cat.codes
 df_test['optelno'] = df_test['optel_schedule_wo'].astype('category').cat.codes
 ```
@@ -75,71 +72,39 @@ df_test['optelno'] = df_test['optel_schedule_wo'].astype('category').cat.codes
 Features and label are split. features and labels are converted to vector for further processing.
 
 ```
-features = df_train[['Noz Rejects Sum%', 'Noz Rejects Sum', 'Noz Reject Factor', 'chhole', 'optelno']]
-#features = df_train[['Noz Rejects Sum%', 'Noz Rejects Sum', 'Noz Reject Factor']]
-labels = df_train[["rejected"]]
 features_test = df_test[["Noz Rejects Sum%", "Noz Rejects Sum", "Noz Reject Factor", 'chhole', 'optelno']]
 labels_test = df_test[["rejected"]]
 
-dataset = tf.data.Dataset.from_tensor_slices((features.values, labels.values))
 dataset_test = tf.data.Dataset.from_tensor_slices((features_test.values, labels_test.values))
 ```
 
 ## Set the training and test date set
 
 ```
-train_data = dataset.shuffle(len(df_train)).batch(1)
 test_data = dataset_test.shuffle(len(df_test)).batch(1)
 ```
 
-## setup the Model configuration and layers
+## load saved model
 
 ```
-model = tf.keras.Sequential([
-  #preprocessing_layer,
-  tf.keras.layers.Dense(128, activation='relu'),
-  tf.keras.layers.Dense(128, activation='relu'),
-  tf.keras.layers.Dense(1, activation='sigmoid'),
-])
-
+from tensorflow.keras.models import load_model
+model = load_model('picknplace_model.h5')
+#model = tf.keras.models.load_model('picknplace_model.h5')
+print(model.outputs)
+# [<tf.Tensor 'dense_2/Softmax:0' shape=(?, 10) dtype=float32>]
+print(model.inputs)
+# [<tf.Tensor 'conv2d_1_input:0' shape=(?, 28, 28, 1) dtype=float32>]
 ```
 
 ## run the model
 
 ```
-model.compile(
-    loss='binary_crossentropy',
-    optimizer='adam',
-    metrics=['accuracy'])
-
-
-model.fit(train_data, epochs=5)
+model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
 ```
 
 ## test the model
 
 ```
-test_loss, test_accuracy = model.evaluate(test_data)
-
-print('\n\nTest Loss {}, Test Accuracy {}'.format(test_loss, test_accuracy))
+score = model.evaluate(test_data)
+print("%s: %.2f%%" % (model.metrics_names[1], score[1]*100))
 ```
-
-## Validate with test data
-
-```
-predictions = model.predict(test_data)
-
-# Show some results
-for prediction, rejected in zip(predictions[:10], list(test_data)[0][1][:10]):
-  print("Predicted rejected: {:.2%}".format(prediction[0]),
-        " | Actual outcome: ",
-        ("Working" if bool(rejected) else "Failed"))
-```
-
-## Now save the model and build inferencing code to deploy to production.
-
-```
-model.save('picknplace_model.h5')
-```
-
-## Follow the above to retraining process as well.
