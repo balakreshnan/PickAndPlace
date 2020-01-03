@@ -26,7 +26,7 @@ COLUMNS = ['Noz Rejects Sum%', 'Noz Rejects Sum', 'Noz Reject Factor', 'date_tim
 #COLUMNS = ['Noz Rejects Sum%', 'Noz Rejects Sum', 'Noz Reject Factor', 'rejected']
 features = ['Noz Rejects Sum%', 'Noz Rejects Sum', 'Noz Reject Factor', 'rejected']
 PATH = "gc10-classify.csv"
-PATH_test = "gc10-classify-test.csv"
+PATH_test = "gc10-classify-10-test.csv"
 
 df_train = pd.read_csv(PATH, skipinitialspace=True, names = COLUMNS, index_col=False, header=1)
 df_test = pd.read_csv(PATH_test, skipinitialspace=True, names = COLUMNS, index_col=False, header=1)
@@ -51,3 +51,10 @@ test_data = dataset_test.shuffle(len(df_test)).batch(1)
 model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
 score = model.evaluate(test_data)
 print("%s: %.2f%%" % (model.metrics_names[1], score[1]*100))
+#print(score)
+result = model.predict(test_data)
+print(result)
+print(type(result))
+for i in result:
+	print(str((i[0])))
+	#print('\n')
